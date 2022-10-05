@@ -6,10 +6,35 @@ require_once('../lib/rabbitMQLib.inc');
 
 function doLogin($username,$password)
 {
-	// lookup username in database
-
+	echo "Authentication Began".PHP_EOL;
+	$dbservername = "localhost";
+	$dbusername = "local";
+	$dbpassword = "ChangeLater";
+	$database = "test_db";
 	
+	// Create Connection
+	$connection = new mysqli($dbservername, $dbusername, $dbpassword, $database);
 	
+	// Check Connection
+	if($connection->connect_error) {
+		die("Connection failed: " . $connection->connect_error);
+	}
+	
+	//Query Credentials
+	$query = "SELECT * FROM account WHERE username = \"".$username."\" AND password = \"".$password."\" LIMIT 1";
+	
+	$result = $connection->query($query);
+	
+	//Check Credentials
+	$numRows = mysqli_num_rows($result);
+	
+	if($numRows != 0){
+		echo "Login Success".PHP_EOL;
+		return array("returnCode" => "202", "message"=>"Login Success: This is a place holder for a session token.");
+	}else{
+		echo "Login Failure".PHP_EOL;
+		return array("returnCode" => "401", "message"=>"Login Failure: The username and/or password are incorrect.");	
+	}
 
 	// check password
 	return true;
@@ -18,7 +43,7 @@ function doLogin($username,$password)
 
 function requestProcessor($request)
 {
-	echo "received request".PHP_EOL;
+	echo "Received Request".PHP_EOL;
 	var_dump($request);
 	if(!isset($request['type']))
 	{
