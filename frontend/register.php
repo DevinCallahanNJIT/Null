@@ -50,9 +50,6 @@ if(isset($_POST['submit']))//starts php when user clicks submit button
 	print_r($response);
 	echo "\n\n";
 
-
-
-
 } 
 ?>
 
