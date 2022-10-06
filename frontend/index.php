@@ -16,17 +16,17 @@
 	</div>
 	<div>
 	    <label>Password</label><br>
-	    <input type="text" placeholder="Enter Password" name="password"  required><br><br>
+	    <input type="password" placeholder="Enter Password" name="password"  required><br><br>
 	</div>
 	<input type="submit" value="Login" name="submit" />
 </div>
 <?php
-if(isset($_POST['submit']))//starts php when user clicks submit button
+if(isset($_POST['submit']))	//starts php when user clicks submit button
 {
 
-	$inputedusername= $_POST['username'];//getting username and password from the form 
-	$inputedpassword= $_POST['password'];
-	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');//calls required files to connect to server
+	$inputedusername= $_POST['username'];	//getting username from the form 
+	$inputedpassword= $_POST['password'];	//getting password from the form
+	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
 
 	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
 	if (isset($argv[1]))
