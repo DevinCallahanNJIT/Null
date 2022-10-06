@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html>
 <body>
+
+<nav>
+	<a href='index.php'>Login</a> |
+	<a href='register.php'>Register</a>
+</nav>
+
 <div>
     <h1>Login</h1>
     <form method="POST" action="">
 	<div>
-	    <label>Username</label>
-	    <input type="text" placeholder="Enter Username" name="username"  required>
+	    <label>Username:</label><br>
+	    <input type="text" placeholder="Enter Username" name="username"  required><br><br>
 	</div>
 	<div>
-	    <label>Password!!</label>
-	    <input type="text" placeholder="Enter Password" name="password"  required>
+	    <label>Password</label><br>
+	    <input type="text" placeholder="Enter Password" name="password"  required><br><br>
 	</div>
 	<input type="submit" value="Login" name="submit" />
+</div>
 <?php
 if(isset($_POST['submit']))//starts php when user clicks submit button
 {
@@ -48,9 +55,8 @@ if(isset($_POST['submit']))//starts php when user clicks submit button
 
 } 
 ?>
-    </form>
 
-</div>
+    </form>
 
 </body>
 </html>
