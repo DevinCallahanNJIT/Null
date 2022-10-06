@@ -9,8 +9,6 @@ function getHostInfo(array $extra = NULL)
 {
     $machine;
     $machine = parse_ini_file("rabbitMQ.ini",true);
-    echo '<pre>'; print_r($machine); echo '</pre>';
-
     return $machine;
 }
 

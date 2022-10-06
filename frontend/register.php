@@ -8,7 +8,7 @@
 </nav>
 
 <div>
-    <h1>Login</h1>
+    <h1>Register</h1>
     <form method="POST" action="">
 	<div>
 	    <label>Username:</label><br>
@@ -18,7 +18,7 @@
 	    <label>Password</label><br>
 	    <input type="text" placeholder="Enter Password" name="password"  required><br><br>
 	</div>
-	<input type="submit" value="Login" name="submit" />
+	<input type="submit" value="Login" name="Register" />
 </div>
 <?php
 if(isset($_POST['submit']))//starts php when user clicks submit button
