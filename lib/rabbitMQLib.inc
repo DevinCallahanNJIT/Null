@@ -142,10 +142,6 @@ class rabbitMQClient
 	function __construct($machine = "rabbitMQ.ini", $server = "testServer")
 	{
 		$this->machine = getHostInfo(array($machine));
-		echo '<pre>';
-		print_r($this->machine);
-		echo '</pre>';
-		echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
 		$this->BROKER_HOST   = $this->machine[$server]["BROKER_HOST"];
 		$this->BROKER_PORT   = $this->machine[$server]["BROKER_PORT"];
 		$this->USER     = $this->machine[$server]["USER"];
@@ -191,9 +187,6 @@ class rabbitMQClient
 			$params['password'] = $this->PASSWORD;
 			$params['vhost'] = $this->VHOST;
 
-			echo '<pre>';
-			print_r($this->params);
-			echo '</pre>';
 			$conn = new AMQPConnection($params);
 			$conn->connect();
 
