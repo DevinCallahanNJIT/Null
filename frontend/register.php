@@ -8,7 +8,7 @@
 </nav>
 
 <div>
-    <h1>Login</h1>
+    <h1>Register</h1>
     <form method="POST" action="">
 	<div>
 	    <label>Username:</label><br>
@@ -18,7 +18,7 @@
 	    <label>Password</label><br>
 	    <input type="password" placeholder="Enter Password" name="password"  required><br><br>
 	</div>
-	<input type="submit" value="Login" name="submit" />
+	<input type="submit" value="Register" name="submit" />
 </div>
 <?php
 if(isset($_POST['submit']))	//starts php when user clicks submit button
@@ -39,7 +39,7 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 	}
 
 	$request = array();
-	$request['type'] = "login";
+	$request['type'] = "register";
 	$request['username'] = $inputedusername;//sending username to server
 	$request['password'] = $inputedpassword;//sending password to server
 	$request['message'] = $msg;
@@ -49,7 +49,7 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
-		die(header("Location: home.php"));
+		die(header("Location: index.php"));
 	}
 	else
 	{
@@ -57,8 +57,6 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 		print_r($response);
 		echo "\n\n";
 	}
-
-
 } 
 ?>
 
