@@ -46,10 +46,6 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 	$response = $client->send_request($request);
 	//$response = $client->publish($request);
 
-	//echo "client received response: ".PHP_EOL;
-	//print_r($response);
-	//echo "\n\n";
-
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
