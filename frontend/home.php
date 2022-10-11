@@ -5,8 +5,8 @@
 <nav>
 	<a href='index.php'>Login</a> |
 	<a href='register.php'>Register</a> |
-    <a href='register.php'>Home</a> |
-    <a href='register.php'>Logout</a>
+    <a href='home.php'>Home</a> |
+    <a href='logout.php'>Logout</a>
 </nav>
 
 <div>
