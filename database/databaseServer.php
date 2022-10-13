@@ -1,4 +1,3 @@
-!/usr/bin/php
 <?php
 require_once('../lib/path.inc');
 require_once('../lib/get_host_info.inc');
@@ -21,13 +20,18 @@ function doLogin($username,$password)
 	}
 	
 	//Query Credentials
-	$query = "SELECT * FROM account WHERE username = \"".$username."\" AND password = \"".$password."\" LIMIT 1";
-	
-	$result = $connection->query($query);
+	$query = $connection->prepare('SELECT * FROM account WHERE username = ? AND password = ? LIMIT 1');
+	//Binds Username and Password Into Query Statement
+	$query->bind_param("ss", $username, $password);	
+
+	//Execute Query
+	$query->execute();
+	$result = $query->get_result();
 	
 	//Check Credentials
 	$numRows = mysqli_num_rows($result);
 	
+	//If there is more than 0 results, the credentials match.
 	if($numRows != 0){
 		echo "Login Success".PHP_EOL;
 		return array("returnCode" => "202", "message"=>"Login Success: This is a place holder for a session token.");
@@ -35,10 +39,6 @@ function doLogin($username,$password)
 		echo "Login Failure".PHP_EOL;
 		return array("returnCode" => "401", "message"=>"Login Failure: The username and/or password are incorrect.");	
 	}
-
-	// check password
-	return true;
-	//return false if not valid
 }
 
 function doRegistration($username, $password)
@@ -58,10 +58,14 @@ function doRegistration($username, $password)
 		die("Connection failed: " . $connection->connect_error);
 	}
 
-	//Query Username
-	$query = "SELECT * FROM account WHERE username = \"".$username."\"";
-
-	$result = $connection->query($query);
+	//Query Credentials
+	$query = $connection->prepare('SELECT * FROM account WHERE username = ?');
+	//Binds Username and Password Into Query Statement
+	$query->bind_param("s", $username);	
+	
+	//Execute Query
+	$query->execute();
+	$result = $query->get_result();
 	
 	//Check Username Availability
 	$numRows = mysqli_num_rows($result);
@@ -72,12 +76,16 @@ function doRegistration($username, $password)
 		return array("returnCode" => "401", "message"=>"Registration Failure: This username is already taken.");
 	}else{
 		//Query Insert Data
-		$query = 'INSERT INTO account VALUES ("'.$username.'", "'.$password.'")';
-
-		if ($connection->query($query)) {
+		$query = $connection->prepare('INSERT INTO account VALUES(?, ?)');
+		//Binds Username and Password Into Query Statement
+		$query->bind_param("ss", $username, $password);	
+		
+		//If query executes successfully, return success message
+		if ($query->execute()) {
 			echo "Account Successfully Registered".PHP_EOL;
 			return array("returnCode" => "202", "message"=>"Registration Success: Your account has successfully been processed.");
 		 }
+		 //If the last query failed and gave an error, return an error
 		 if ($connection->errno) {
 			echo "Database Error: Failed To Insert Data".PHP_EOL;
 			return array("returnCode" => "404", "message"=>"Database Error: Failed to insert data into database.");
