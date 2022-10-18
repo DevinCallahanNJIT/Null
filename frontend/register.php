@@ -38,10 +38,15 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 		$msg = "login info";
 	}
 
+	//generate password hash with salt
+	$salt = substr(hash('sha256', $inputedusername), 5, 15);
+	$passHash = hash('sha256', $salt.$inputedpassword);
+
+
 	$request = array();
 	$request['type'] = "register";
 	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $inputedpassword;//sending password to server
+	$request['password'] = $passHash;//sending password to server
 	$request['message'] = $msg;
 	$response = $client->send_request($request);
 	//$response = $client->publish($request);
