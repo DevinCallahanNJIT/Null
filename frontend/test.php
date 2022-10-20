@@ -8,7 +8,7 @@
 </nav>
 
 <div>
-    <h1>Login!</h1>
+    <h1>Login</h1>
     <form method="POST" action="">
 	<div>
 	    <label>Username:</label><br>
@@ -39,19 +39,21 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	}
 
 	$time = time();
-	$sessionId = SHA1($inputedusername . $time . $inputedpassword);
+	$sessionId = SHA1($inputedusername . $time);
 
 	$request = array();
 	$request['type'] = "login";
-	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $inputedpassword;//sending password to server
-	$request['message'] = $msg;				//sending message to server
-	$request['sessionid'] = $sessionId;		//sending session to server
+	$request['username'] = $inputedusername;	//sending username to server
+	$request['password'] = $inputedpassword;	//sending password to server
+
+	$request['sessionid'] = $sessionId;			//sending session to server
+	$request['message'] = $msg;					//sending message to server
 	$response = $client->send_request($request);
 
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
+		echo "$sessionID";
 		die(header("Location: home.php"));
 	}
 	else
@@ -61,9 +63,14 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 		echo "\n\n";
 	}
 
-
-} 
+}
 ?>
+<script>
+const { createHash } = require('crypto');
+function hash(string) {
+  return createHash('sha256').update(string).digest('hex');
+}
+</script>
 
     </form>
 
