@@ -21,7 +21,7 @@
 	<input type="submit" value="Login" name="submit" />
 </div>
 <?php
-if(isset($_POST['submit']))	//starts php when user clicks submit button
+if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['password']))	//starts php when user clicks submit button
 {
 
 	$inputedusername= $_POST['username'];	//getting username from the form 
@@ -38,13 +38,16 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 		$msg = "login info";
 	}
 
+	$time = time();
+	$sessionId = SHA1($inputedusername . $time . $inputedpassword);
+
 	$request = array();
 	$request['type'] = "login";
 	$request['username'] = $inputedusername;//sending username to server
 	$request['password'] = $inputedpassword;//sending password to server
-	$request['message'] = $msg;
+	$request['message'] = $msg;				//sending message to server
+	$request['sessionid'] = $sessionId;		//sending session to server
 	$response = $client->send_request($request);
-	//$response = $client->publish($request);
 
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
