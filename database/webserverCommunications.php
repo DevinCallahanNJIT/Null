@@ -2,22 +2,14 @@
 require_once('../lib/path.inc');
 require_once('../lib/get_host_info.inc');
 require_once('../lib/rabbitMQLib.inc');
+require_once('./connectDatabase.php');
 
 function doLogin($username,$password)
 {
 	echo "Authentication Began".PHP_EOL;
-	$dbservername = "localhost";
-	$dbusername = "local";
-	$dbpassword = "ChangeLater";
-	$database = "ProjectNull";
-	
+
 	// Create Connection
-	$connection = new mysqli($dbservername, $dbusername, $dbpassword, $database);
-	
-	// Check Connection
-	if($connection->connect_error) {
-		die("Connection failed: " . $connection->connect_error);
-	}
+	$connection = connDB();
 	
 	//Query Prepared Statement
 	$query = $connection->prepare('SELECT * FROM User WHERE username = ? AND passwordHash = ? LIMIT 1');
@@ -33,7 +25,7 @@ function doLogin($username,$password)
 	
 	//If there is more than 0 results, the credentials match.
 	if($numRows != 0){
-		echo "Login Success, Creating Session \n".PHP_EOL;
+		echo "Authentication Success\nCreating Session".PHP_EOL;
 
 		$datetime = date('Y-m-d H:i:s', time() + 86400);	//current date and time (example format: '2022-20-2022 18:46:26')
 		$sessionID = hash('sha256', $username . $datetime); //session hash based on username and current time
@@ -42,8 +34,6 @@ function doLogin($username,$password)
 		$query = $connection->prepare('INSERT INTO Session VALUES(?, ?, ?)');
 		//Binds Username Into Query Statement
 		$query->bind_param("sss", $sessionID, $username, $datetime);	
-
-		echo "about to run insert".PHP_EOL;
 
 		//Execute Query
 		if ($query->execute()) {
@@ -59,7 +49,7 @@ function doLogin($username,$password)
 		
 		//If the last query failed and gave an error, return an error
 		if ($connection->errno) {
-			echo "Database Error: Failed To Insert Data".PHP_EOL;
+			echo "Database Error: Failed To Insert Data \n".PHP_EOL;
 			return array("returnCode" => "404", "message"=>"Database Error: Logged in, failed to store session in db.");
 		}
 
@@ -72,20 +62,10 @@ function doLogin($username,$password)
 
 function doRegistration($username, $password)
 {
-	//Connect to database
 	echo "Registration Began".PHP_EOL;
-	$dbservername = "localhost";
-	$dbusername = "local";
-	$dbpassword = "ChangeLater";
-	$database = "ProjectNull";
-	
+
 	// Create Connection
-	$connection = new mysqli($dbservername, $dbusername, $dbpassword, $database);
-	
-	// Check Connection
-	if($connection->connect_error) {
-		die("Connection failed: " . $connection->connect_error);
-	}
+	$connection = connDB();
 
 	//Query Prepared Statement
 	$query = $connection->prepare('SELECT * FROM User WHERE username = ?');
@@ -126,8 +106,7 @@ function requestProcessor($request)
 {
 	echo "Received Request".PHP_EOL;
 	
-	//DEBUG CODE - 1 LINE: show incoming array
-	var_dump($request);
+	//var_dump($request);
 
 	if(!isset($request['type']))
 	{

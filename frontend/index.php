@@ -51,6 +51,14 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
+		$cookieSessionID = $response['sessionID'];
+		$cookieUsername = $response['username'];
+		$cookieExpiration = $response['expiration'];
+        $cookiePath = "/";
+
+        setcookie("Session", $cookieSessionID, $expires, $path);
+		setcookie("Username", $cookieUsername, $expires, $path);
+
 		die(header("Location: home.php"));
 	}
 	else
