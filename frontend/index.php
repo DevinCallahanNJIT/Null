@@ -26,7 +26,7 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 
 	$inputedusername= $_POST['username'];	//getting username from the form 
 	$inputedpassword= $_POST['password'];	//getting password from the form
-	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
+	require('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
 
 	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
 	if (isset($argv[1]))
@@ -42,16 +42,11 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	$salt = substr(hash('sha256', $inputedusername), 5, 15);
 	$passHash = hash('sha256', $salt.$inputedpassword);
 
-	$time = time();
-	$sessionId = SHA1($inputedusername . $time . $inputedpassword);
-
 	$request = array();
 	$request['type'] = "login";
 	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $inputedpassword;//sending password to server
-	$request['message'] = $msg;				//sending message to server
-	$request['sessionid'] = $sessionId;		//sending session to server
-	$response = $client->send_request($request);
+	$request['password'] = $passHash;//sending hashed password to server
+	$response = $client->send_request($request);//send $request and wait to store response in $response
 
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful

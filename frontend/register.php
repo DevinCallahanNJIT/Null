@@ -47,7 +47,6 @@ if(isset($_POST['submit']))	//starts php when user clicks submit button
 	$request['type'] = "register";
 	$request['username'] = $inputedusername;//sending username to server
 	$request['password'] = $passHash;//sending password to server
-	$request['message'] = $msg;
 	$response = $client->send_request($request);
 	//$response = $client->publish($request);
 
