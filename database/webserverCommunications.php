@@ -102,9 +102,49 @@ function doRegistration($username, $password)
 	}
 }
 
+function doSession($sessionID, $username, $expiration){
+
+	echo "Session Validation Began".PHP_EOL;
+
+	// Create Connection
+	$connection = connDB();
+
+	//reformat $expiration into unix timestamp
+	$timestamp = strtotime($expiration);
+
+	//Query Prepared Statement
+	$query = $connection->prepare('SELECT * FROM Session WHERE sessionID = ? AND username = ? AND expiration = ? LIMIT 1');
+	//Binds Username Into Query Statement
+	$query->bind_param("sss", $sessionID, $username, $expiration);	
+	
+	//Execute Query
+	$query->execute();
+	$result = $query->get_result();
+
+	//Check for matching row
+	$numRows = mysqli_num_rows($result);
+	
+	//If valid Session data is found, check expiration date and time for expiration, else, session validation failed
+	if($numRows != 0){
+		
+		//if expiration time is valid, success, else, failure
+		if (time()<=$timestamp){
+			echo "Session Validation Success\n".PHP_EOL;
+			return array("returnCode" => "202", "message"=>"Session Validation Success: The session information is valid.");
+		}else{
+			echo "Session Validation Failure\n".PHP_EOL;
+			return array("returnCode" => "401", "message"=>"Session Validation Failure: The session is expired.");
+		}
+	}else{
+		echo "Session Validation Failure\n".PHP_EOL;
+		return array("returnCode" => "401", "message"=>"Session Validation Failure: The session ID is invalid.");
+	}
+
+}
+
 function requestProcessor($request)
 {
-	echo "Received Request".PHP_EOL;
+	echo "\nReceived Request".PHP_EOL;
 	
 	//var_dump($request);
 
@@ -119,6 +159,9 @@ function requestProcessor($request)
 
 		case "register":
 			return doRegistration($request['username'],$request['password']);
+
+		case "session":
+			return doSession($request['sessionID'],$request['username'], $request['expiration']);
 
 		
 

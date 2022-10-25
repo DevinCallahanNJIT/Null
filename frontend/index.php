@@ -26,7 +26,7 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 
 	$inputedusername= $_POST['username'];	//getting username from the form 
 	$inputedpassword= $_POST['password'];	//getting password from the form
-	require('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
+	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
 
 	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
 	if (isset($argv[1]))
@@ -51,13 +51,11 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
-		$cookieSessionID = $response['sessionID'];
-		$cookieUsername = $response['username'];
-		$cookieExpiration = strtotime($response['expiration']);
         $cookiePath = "/";
 
-        setcookie("Session", $cookieSessionID, $cookieExpiration, $path);
-		setcookie("Username", $cookieUsername, $cookieExpiration, $path);
+		$cookieArray = array('sessionID'=>$response['sessionID'], 'username'=>$response['username'], 'expires'=>$response['expiration']);
+
+        setcookie("Session", json_encode($cookieArray), $cookieExpiration, $path);
 
 		die(header("Location: home.php"));
 	}
