@@ -16,14 +16,16 @@
         require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
         $client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication"); //connect to authentication queue
 
-        $cookieArray = (array) json_decode( $_COOKIE["Session"]);
+        $cookieArray = (array) json_decode( $_COOKIE["Session"]);//decode cookie value (value is a json encoded array)
 
+        //create array of request data
         $request = array();
         $request['type'] = "session";
         $request['sessionID'] = $cookieArray['sessionID'];
         $request['username'] = $cookieArray['username'];
         $request['expiration'] = $cookieArray['expires'];
 
+        //send $request to database server, listen for and store response
         $response = $client->send_request($request);
 
         $code = implode(" ",$response);	//Turns $response into a string

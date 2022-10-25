@@ -42,21 +42,27 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	$salt = substr(hash('sha256', $inputedusername), 5, 15);
 	$passHash = hash('sha256', $salt.$inputedpassword);
 
+	//create array of request data
 	$request = array();
 	$request['type'] = "login";
 	$request['username'] = $inputedusername;//sending username to server
 	$request['password'] = $passHash;//sending hashed password to server
+	
 	$response = $client->send_request($request);//send $request and wait to store response in $response
 
 	$code = implode(" ",$response);	//Turns $response into a string
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
+		//cookie path (root folder)
         $cookiePath = "/";
 
+		//stores cookie data into array
 		$cookieArray = array('sessionID'=>$response['sessionID'], 'username'=>$response['username'], 'expires'=>$response['expiration']);
 
+		//stores cookie data into cookie as encoded json
         setcookie("Session", json_encode($cookieArray), $cookieExpiration, $path);
 
+		//redirect page to the 'home' page
 		die(header("Location: home.php"));
 	}
 	else
