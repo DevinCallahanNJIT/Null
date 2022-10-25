@@ -53,11 +53,11 @@ if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['passwo
 	{
 		$cookieSessionID = $response['sessionID'];
 		$cookieUsername = $response['username'];
-		$cookieExpiration = $response['expiration'];
+		$cookieExpiration = strtotime($response['expiration']);
         $cookiePath = "/";
 
-        setcookie("Session", $cookieSessionID, $expires, $path);
-		setcookie("Username", $cookieUsername, $expires, $path);
+        setcookie("Session", $cookieSessionID, $cookieExpiration, $path);
+		setcookie("Username", $cookieUsername, $cookieExpiration, $path);
 
 		die(header("Location: home.php"));
 	}
