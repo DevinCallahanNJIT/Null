@@ -17,10 +17,15 @@ def doSearchAndSend(cat):
 
     for drink in data['drinks']:
         ingredients = []
+        measures = []
         for key, item in drink.items():
             if key.startswith('strIngredient') and item is not None:
                 ing = [key, item]
                 ingredients.append(ing)
+                
+            if key.startswith('strMeasure') and item is not None:
+                ing = [key, item]
+                measures.append(ing)
 
         drink_ = {
             'idDrink': drink['idDrink'],
@@ -29,12 +34,16 @@ def doSearchAndSend(cat):
             'strCategory': drink['strCategory'],
             'strAlcoholic': drink['strAlcoholic'],
             'strInstructions': drink['strInstructions'],
+            'strDrinkThumb': drink['strDrinkThumb'], 
+
         }
 
         for ingredient in ingredients:
             drink_[ingredient[0]] = ingredient[1]
+        for measure in measures:
+            drink_[measure[0]] = measure[1]
         result.append(drink_)
-
+    print(result)
     pub.send_msg(result)
     print('sent success')
 
