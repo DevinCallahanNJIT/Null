@@ -20,7 +20,7 @@ function getURL($path){
 }
 
 function rabbitAuthClient($request){
-    $client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
+    $client = new rabbitMQClient("/home/ubuntu/Null/lib/rabbitMQ.ini","Authentication");
     $response = $client->send_request($request);
     return $response;
 }
