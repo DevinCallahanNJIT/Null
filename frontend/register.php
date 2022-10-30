@@ -1,70 +1,97 @@
-<!DOCTYPE html>
-<html>
+<?php require_once(__DIR__ . '/partials/header.php'); ?>
 <body>
 
-<nav>
-	<a href='index.php'>Login</a> |
-	<a href='register.php'>Register</a>
-</nav>
+<?php require_once(__DIR__ . '/partials/navbar.php'); ?>
 
-<div>
-    <h1>Register</h1>
-    <form method="POST" action="">
-	<div>
-	    <label>Username:</label><br>
-	    <input type="text" placeholder="Enter Username" name="username"  required><br><br>
+<div class="container p-5"> 
+	<form method="POST">
+	<div class="mb-3 mt-3">
+		<label class="form-label">Username:</label>
+		<input type="text" class="form-control" placeholder="Enter username" name="username" required>
 	</div>
-	<div>
-	    <label>Password</label><br>
-	    <input type="password" placeholder="Enter Password" name="password"  required><br><br>
+	<div class="mb-3">
+		<label class="form-label">Password:</label>
+		<input type="password" class="form-control" placeholder="Enter Password" name="password" required>
 	</div>
-	<input type="submit" value="Register" name="submit" />
+	<div class="mb-3">
+		<label class="form-label">Confirm Password:</label>
+		<input type="password" class="form-control" placeholder="Confirm Password" name="confirm" required>
+	</div>
+	<input type="submit" value="Register" class="btn btn-primary" name="submit"/>
+	</form>
+	<p></p>
+    <p class="h6">Have an account? <a href="login.php">Login Here </a></p>
+
 </div>
+
 <?php
-if(isset($_POST['submit']))	//starts php when user clicks submit button
-{
+if(isset($_POST['submit'])){	//starts php when user clicks submit button
+	
+	$username = null;
+	$password = null;
+	$confirm = null;
 
-	$inputedusername= $_POST['username'];	//getting username from the form 
-	$inputedpassword= $_POST['password'];	//getting password from the form
-	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
-
-	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
-	if (isset($argv[1]))
-	{
-		$msg = $argv[1];
+	if (isset($_POST["username"])) {
+		$username = $_POST["username"];
 	}
-	else
-	{
-		$msg = "login info";
+	if (isset($_POST["password"])) {
+		$password = $_POST["password"];
+	}
+	if (isset($_POST["confirm"])) {
+		$confirm = $_POST["confirm"];
 	}
 
-	//generate password hash with salt
-	$salt = substr(hash('sha256', $inputedusername), 5, 15);
-	$passHash = hash('sha256', $salt.$inputedpassword);
+	$isValid = true;
 
-
-	$request = array();
-	$request['type'] = "register";
-	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $passHash;//sending password to server
-	$response = $client->send_request($request);
-	//$response = $client->publish($request);
-
-	$code = implode(" ",$response);	//Turns $response into a string
-	if (str_contains($code, 'Success'))	//See if response if successful
-	{
-		die(header("Location: index.php"));
+	if ($password == $confirm) {
 	}
-	else
-	{
-		echo "client received response: ".PHP_EOL;
-		print_r($response);
-		echo "\n\n";
+	else {
+		$isValid = false;
 	}
+	if (!isset($username) || !isset($password) || !isset($confirm)) {
+		$isValid = false;
+	}
+
+
+
+	if($isValid){
+		//generate password hash with salt
+		$salt = substr(hash('sha256', $username), 5, 15);
+		$passHash = hash('sha256', $salt.$password);
+
+		//create array of request data
+		$request = array();
+		$request['type'] = "register";
+		$request['username'] = $username;//sending username to server
+		$request['password'] = $passHash;//sending hashed password to server
+		
+		$response = $response = rabbitAuthClient($request);//send $request and wait to store response in $response
+
+		$code = implode(" ",$response);	//Turns $response into a string
+		safer_echo($code);
+
+		if (str_contains($code, 'Success'))	//See if response if successful
+		{
+			die(header("Location: login.php"));
+		}
+		else
+		{
+			errorLog($response);
+		}
+	}
+
+	if (!isset($username)) {
+        $username = "";
+    }
+	
+
+	
+
+
 } 
 ?>
 
-    </form>
+
 
 </body>
 </html>
