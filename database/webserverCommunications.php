@@ -169,7 +169,7 @@ function requestProcessor($request)
 	return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
-$server = new rabbitMQServer("../lib/RabbitMQ.ini","Authentication");
+$server = new rabbitMQServer("../lib/rabbitMQ.ini","Authentication");
 
 echo "RabbitMQServer BEGIN \n".PHP_EOL;
 $server->process_requests('requestProcessor');

@@ -59,15 +59,15 @@ CREATE TABLE CocktailReview(
 );
 
 CREATE TABLE Liquor(
-    liquorID VARCHAR (128) PRIMARY KEY,
+    liquorID INT NOT NULL AUTO_INCREMENT,
     liquorName VARCHAR (64),
     liquorImage VARCHAR (512),
-    CONSTRAINT C_liquorID_U_01 UNIQUE (liquorID)
+    CONSTRAINT C_Liquor_PK_01 PRIMARY KEY (liquorID)
 );
 
 CREATE TABLE Recipe(
     cocktailID INT,
-    ingredientID VARCHAR (128),
+    ingredientID INT,
     ingredientMeasurement VARCHAR (64),
     CONSTRAINT C_Recipe_PK_01 PRIMARY KEY (cocktailID, ingredientID),
     CONSTRAINT C_Recipe_FK_01 FOREIGN KEY (cocktailID) REFERENCES Cocktail(cocktailID),
@@ -76,7 +76,7 @@ CREATE TABLE Recipe(
 
 CREATE TABLE LiquorCabinet(
     username VARCHAR (128),
-    liquorID VARCHAR (128),
+    liquorID INT,
     CONSTRAINT C_LiquorCabinet_PK_01 PRIMARY KEY (username, liquorID),
     CONSTRAINT C_LiquorCabinet_FK_01 FOREIGN KEY (username) REFERENCES User(username),
     CONSTRAINT C_LiquorCabinet_FK_02 FOREIGN KEY (liquorID) REFERENCES Liquor(liquorID)
