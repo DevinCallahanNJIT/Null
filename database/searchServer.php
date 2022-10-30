@@ -20,18 +20,19 @@ function fetchLiquor($liquorID)
 	$query->execute();
 	$result = $query->get_result();
 
-	$counter = 1;
+	//array that will store response data
     $response = array();
-    $response['numResults'] = $result->num_rows;
+	
+	//stores data into response array
 	while ($row = $result->fetch_row()){
 		$resultData = (array)$row;
 
-		$response['liquorID'.(string)$counter] = $resultData[0];
-		$response['liquorName'.(string)$counter] = $resultData[1];
-		$response['imageRef'.(string)$counter] = $resultData[2];
-		$counter++;
+		$response['liquorID'] = $resultData[0];
+		$response['liquorName'] = $resultData[1];
+		$response['imageRef'] = $resultData[2];
 	}
     
+	//return data
 	echo "Search Finished. Returning ".$response['numResults']." result(s).".PHP_EOL;
     return $resposne;
 	
@@ -43,7 +44,8 @@ function fetchCocktail($cocktailID){
 
 	// Create Connection
 	$connection = connDB();
-		
+	
+	//append wildcard characters to either side of search string
 	$searchString = "%".$searchString."%";
 
 	//Query Prepared Statement
@@ -55,6 +57,7 @@ function fetchCocktail($cocktailID){
 	$query->execute();
 	$result = $query->get_result();
 
+	//stores all data into array
 	$counter = 1;
     $response = array();
     $response['numResults'] = $result->num_rows;
@@ -69,6 +72,7 @@ function fetchCocktail($cocktailID){
 		$counter++;
 	}
     
+	//returns data in array as response
 	echo "Search Finished. Returning ".$response['numResults']." result(s).".PHP_EOL;
     return $resposne;
 
