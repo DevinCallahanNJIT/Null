@@ -4,62 +4,34 @@ require_once('../lib/path.inc');
 require_once('../lib/get_host_info.inc');
 require_once('../lib/rabbitMQLib.inc');
 
-  $inputedusername = "test";
-	$inputedpassword = "test";
+/*
+	Nothing In This File Is Relevant Towards The System.
+	This Code Exists Just To Test Parts Of Functions Being Developed Independently, And Is Changed Frequently.
+	Code In This File May Exist As Incomplete Code And Should Not Be Referenced For Other Code.
+*/
 
-	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
 
-	if (isset($argv[1]))
-	{
-		$msg = $argv[1];
-	}
-	else
-	{
-		$msg = "login info";
-	}
-
-	//generate password hash with salt
-	$salt = substr(hash('sha256', $inputedusername), 5, 15);
-	$passHash = hash('sha256', $salt.$inputedpassword);
-
+	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","DatabaseSearch");
 	$request = array();
-	$request['type'] = "login";
-	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $passHash;//sending hashed password to server
+/*
+	$request['type']='createRecipe';
+	$request['cocktailName']='Mimosa';
+	$request['username']='test';
+	$request['instructions']='Ensure both ingredients are well chilled, then mix into glass. Serve cold.';
+	$request['imageRef']='https://www.thecocktaildb.com/images/media/drink/juhcuu1504370685.jpg';
+	$request['ingredient1']='Champagne';
+	$request['measurement1']='Chilled';
+	$request['ingredient2']='Orange Juice';
+	$request['measurement2']='2 oz';
+*/
+	$request['type'] = 'searchRecipe';
+	$request['ingredientName'] = 'Milk';
+	
 	$response = $client->send_request($request);//send $request and wait to store response in $response
 
-echo "client received response: ".PHP_EOL;
-print_r($response);
-echo "\n\n";
-
-
-$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
-
-//Create session information for successful login
-$datetime = date('Y-m-d H:i:s', time());	//current date and time (example format: '2022-20-2022 18:46:26')
-$sessionID = hash('sha256', $inputedusername . $datetime); //session hash based on username and current time
-
-//send session information to database
-$request = array();
-$request['type'] = "create session";
-$request['sessionID'] = $sessionID;//sending sessionID
-$request['username'] = $inputedusername;//sending username
-$request['datetime'] = $datetime;//send date and time	
-
-$response = $client->send_request($request); //send $request and wait to store response in $response
-
-if (isset($argv[1]))
-{
-  $msg = $argv[1];
-}
-else
-{
-  $msg = "login info";
-}
-
-echo "client received response: ".PHP_EOL;
-print_r($response);
-echo "\n\n";
+	echo "client received response: ".PHP_EOL;
+	print_r($response);
+	echo "\n\n";
 
 
 echo $argv[0]." END".PHP_EOL;
