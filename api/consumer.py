@@ -1,3 +1,4 @@
+#some code from https://pika.readthedocs.io/en/stable/modules/credentials.html
 import pika
 
 
