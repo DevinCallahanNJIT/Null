@@ -73,6 +73,9 @@ class rabbitMQServer
 				$conn_queue->bind($exchange->getName(), $replykey);
 				$exchange->publish(json_encode($response), $replykey, AMQP_NOPARAM, array('correlation_id' => $msg->getCorrelationId()));
 
+				//$channel->close();
+				//$connection->close();
+
 				return;
 			}
 		} catch (Exception $e) {
@@ -119,6 +122,34 @@ class rabbitMQServer
 			}
 		} catch (Exception $e) {
 			trigger_error("Failed to start request processor: " . $e, E_USER_ERROR);
+		}
+	}
+
+	function consumeAPI($callback){
+		$this->callback = $callback;
+		$conn = new AMQPStreamConnection($this->BROKER_HOST, $this->BROKER_PORT, $this->USER, $this->PASSWORD, $this->VHOST);
+		$channel = $conn->channel();	
+
+
+		$channel->queue_declare('API', true, false, false, false);
+	
+		$channel->basic_consume('API', 'API', false, true, false, false, array($this, 'consumeMessage'));
+	
+		while (count($channel->callbacks)) {
+			$channel->wait();
+		}
+	
+		$channel->close();
+		$connection->close();
+	
+	}
+	
+	function consumeMessage($msg) {
+		$body = $msg->getBody();
+		$payload = json_decode($body, true);
+		$response;
+		if (isset($this->callback)) {
+			$response = call_user_func($this->callback, $payload);
 		}
 	}
 	
