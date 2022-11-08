@@ -17,7 +17,5 @@ class Publisher:
         channel = self.connection.channel()
         channel.queue_declare(queue='API', durable=True)
 
-        json_str = json.dumps(data, ensure_ascii=False)
-
-        channel.basic_publish(exchange='amq.direct', routing_key='', body=json_str)
+        channel.basic_publish(exchange='amq.direct', routing_key='', body=data)
         self.connection.close()
