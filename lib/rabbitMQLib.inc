@@ -41,9 +41,7 @@ class rabbitMQServer
 	function process_message($msg)
 	{
 		// send the ack to clear the item from the queue
-		if ($msg->getRoutingKey() !== "*") {
-			return;
-		}
+		
 		$this->conn_queue->ack($msg->getDeliveryTag());
 		try {
 			if ($msg->getReplyTo()) {
@@ -123,6 +121,7 @@ class rabbitMQServer
 			trigger_error("Failed to start request processor: " . $e, E_USER_ERROR);
 		}
 	}
+	
 }
 
 class rabbitMQClient

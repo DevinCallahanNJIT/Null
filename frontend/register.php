@@ -72,11 +72,12 @@ if(isset($_POST['submit'])){	//starts php when user clicks submit button
 
 		if (str_contains($code, 'Success'))	//See if response if successful
 		{
+			logging($username . " has registered a new account", __FILE__);
 			die(header("Location: login.php"));
 		}
 		else
 		{
-			errorLog($response);
+			loggingWarn($response, __FILE__);
 		}
 	}
 

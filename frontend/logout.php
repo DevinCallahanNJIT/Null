@@ -1,15 +1,15 @@
 <?php
+
+require_once(__DIR__ . "/lib/logging.php");
+
 if (isset($_COOKIE['Session'])) {
     echo "Session was set.\n";
+    $cookieArray = (array) json_decode( $_COOKIE["Session"]);
     unset($_COOKIE['Session']); 
+    //unset($_COOKIE["Cart"]);
     setcookie('Session', null, -1, '/');
     echo "Session unset.";
-}
-if (isset($_COOKIE['Username'])) {
-    echo "Username was set.\n";
-    unset($_COOKIE['Username']); 
-    setcookie('Username', null, -1, '/');
-    echo "Username unset.";
+    logging($cookieArray['username'] . " has logged out", __FILE__);
 }
 
 die(header("Location: index.php"));
