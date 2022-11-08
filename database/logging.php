@@ -5,7 +5,7 @@ function logger($message, array $data, $logFile = "error.log"){
       $message = str_replace("%{$key}%", $val, $message);
     }
     $message .= PHP_EOL;
-    $_logFile = __DIR__ . '/../../logs/' . $logFile;
+    $_logFile = __DIR__ . '/../logs/' . $logFile;
     return file_put_contents($_logFile, $message, FILE_APPEND);
 }
 
