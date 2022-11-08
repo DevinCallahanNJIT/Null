@@ -22,7 +22,7 @@
 
 <?php
 if(isset($_POST['submit']))	{ //starts php when user clicks submit button
-
+    
     $username = null;
     $password = null;
 
@@ -41,7 +41,6 @@ if(isset($_POST['submit']))	{ //starts php when user clicks submit button
 	$salt = substr(hash('sha256', $username), 5, 15);
 	$passHash = hash('sha256', $salt.$password);
 
-
 	//create array of request data
 	$request = array();
 	$request['type'] = "login";
@@ -49,24 +48,27 @@ if(isset($_POST['submit']))	{ //starts php when user clicks submit button
 	$request['password'] = $passHash;//sending hashed password to server
 	
 	$response = rabbitAuthClient($request);//send $request and wait to store response in $response
-    
-	$code = implode(" ",$response);	//Turns $response into a string
 
+	$code = implode(" ",$response);	//Turns $response into a string
     safer_echo($code);
 
 	if (str_contains($code, 'Success'))	//See if response if successful
 	{
+        createCart();
+
         $cookiePath = "/";
 
 		$cookieArray = array('sessionID'=>$response['sessionID'], 'username'=>$response['username'], 'expires'=>$response['expiration']);
 
-        setcookie("Session", json_encode($cookieArray), $cookieExpiration, $path);
+        setcookie("Session", json_encode($cookieArray), $cookieExpiration, $cookiePath);
+        
+        logging($username . " has logged in", __FILE__);
 
-		die(header("Location: home.php"));
+		die(header("Location: index.php"));
 	}
 	else
 	{
-		safer_echo($response);
+		loggingWarn($response, __FILE__);
 	}
 
 

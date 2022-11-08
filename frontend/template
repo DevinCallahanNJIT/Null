@@ -1,0 +1,8 @@
+<?php require_once(__DIR__ . '/partials/header.php'); ?>
+<body>
+<?php require_once(__DIR__ . '/partials/navbar.php'); ?>
+<div class="container p-5">
+    <!-- ENTER STUFF HERE-->
+</div>
+</body>
+<?php require_once(__DIR__ . '/partials/footer.php'); ?>

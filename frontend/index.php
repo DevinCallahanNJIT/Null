@@ -1,78 +1,96 @@
-<!DOCTYPE html>
-<html>
+<?php require_once(__DIR__ . '/partials/header.php'); ?>
 <body>
+<?php require_once(__DIR__ . '/partials/navbar.php'); ?>
 
-<nav>
-	<a href='index.php'>Login</a> |
-	<a href='register.php'>Register</a>
-</nav>
+<div class="container p-5">
 
 <div>
-    <h1>Login!</h1>
-    <form method="POST" action="">
-	<div>
-	    <label>Username:</label><br>
-	    <input type="text" placeholder="Enter Username" name="username"  required><br><br>
-	</div>
-	<div>
-	    <label>Password</label><br>
-	    <input type="password" placeholder="Enter Password" name="password"  required><br><br>
-	</div>
-	<input type="submit" value="Login" name="submit" />
+    <h1>Home</h1>
+
+<?php if (isSessionValid()):?>
+    <?php 
+    echo "<h3>Welcome " . getUsername() . "</h3>";
+        
+
+    $request = array();
+    $request['type'] = "fetchRecommendation";
+    $request['username'] = getUsername();
+    $response = rabbitSearchClient($request);
+    //echo(var_dump($response));
+    ?>  
+
+
+    <style>
+    a {
+        color: inherit; 
+        text-decoration: inherit;
+    }
+    .card{
+        min-height: 300px;
+        min-width: 300px;
+        margin-right: 5px; 
+        max-height:600px;
+        max-width:400px;    
+    }
+    img{
+        object-fit: cover;
+        max-height:400px;
+        max-width:400px;
+    }
+
+    </style>
+<div class="container-fluid">
+    <hr>
+    <?php foreach ($response as $key => $value):?>
+        
+
+    <p class="h3">Drinks based off of <?php echo($key); ?></p>
+    <?php //echo(var_dump($value)); ?>
+    <div class="card-group d-flex flex-row flex-nowrap overflow-auto">
+        <?php for($counter=1;$counter<=count($value);$counter++): ?>
+        <a href="drinks.php?id=<?php echo($value[$counter]['cocktailID']);?>">
+        <div class="card m-2 ">
+            <img class="card-img-top" src="<?php echo($value[$counter]['imageRef']); ?>" alt="Card image">
+            <div class="card-body">
+                <h4 class="Long vodka"><?php echo($value[$counter]['cocktailName']);?></h4>
+                <div class="card-text">
+                    <style>
+                        .checked {
+                            color: orange;
+                        }
+                        .fa{
+                            font-size: 150%;
+                        }
+                    </style>
+                    <?php for($x=1;$x<=5;$x++):?>
+                        <?php if($x<=$value['rating'.(string)$counter]):?>
+                            <span class="fa fa-star checked"></span>
+                        <?php else:?>
+                            <span class="fa fa-star"></span>
+                        <?php endif;?>
+                    <?php endfor;?>
+                    <!--<p><?php/* if($response['numResults']>=2){
+                        echo((string) $response['numResults'] . " reviews");
+                    } elseif($response['numResults']==1) {
+                        echo((string) $response['numResults'] . " review");
+                    } else{
+                        echo("No reviews");
+                    }*/?></p>-->
+                </div>
+            </div>
+        </div>
+        </a>
+        <?php endfor; ?>
+    </div>
+
+    <hr>
+    <?php endforeach;?>
 </div>
-<?php
-if(isset($_POST['submit'])&& !empty($_POST['username']) && !empty($_POST['password']))	//starts php when user clicks submit button
-{
+<?php else:?>
+    <?php echo "<h3>Welcome Guest</h3>";?>
+<?php endif;?>
+</div>
 
-	$inputedusername= $_POST['username'];	//getting username from the form 
-	$inputedpassword= $_POST['password'];	//getting password from the form
-	require_once('/home/ubuntu/Null/lib/rabbitMQLib.inc');	//calls required files to connect to server
-
-	$client = new rabbitMQClient("/home/ubuntu/Null/lib/RabbitMQ.ini","Authentication");
-	if (isset($argv[1]))
-	{
-		$msg = $argv[1];
-	}
-	else
-	{
-		$msg = "login info";
-	}
-
-	//generate password hash with salt
-	$salt = substr(hash('sha256', $inputedusername), 5, 15);
-	$passHash = hash('sha256', $salt.$inputedpassword);
-
-	//create array of request data
-	$request = array();
-	$request['type'] = "login";
-	$request['username'] = $inputedusername;//sending username to server
-	$request['password'] = $passHash;//sending hashed password to server
-	
-	$response = $client->send_request($request);//send $request and wait to store response in $response
-
-	$code = implode(" ",$response);	//Turns $response into a string
-	if (str_contains($code, 'Success'))	//See if response if successful
-	{
-        $cookiePath = "/";
-
-		$cookieArray = array('sessionID'=>$response['sessionID'], 'username'=>$response['username'], 'expires'=>$response['expiration']);
-
-        setcookie("Session", json_encode($cookieArray), $cookieExpiration, $path);
-
-		die(header("Location: home.php"));
-	}
-	else
-	{
-		echo "client received response: ".PHP_EOL;
-		print_r($response);
-		echo "\n\n";
-	}
-
-
-} 
-?>
-
-    </form>
-
+</div>
 </body>
-</html>
+<?php require_once(__DIR__ . '/partials/footer.php'); ?>
