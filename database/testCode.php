@@ -11,41 +11,66 @@ require_once('../lib/get_host_info.inc');
 require_once('../lib/rabbitMQLib.inc');
 require_once('./connectDatabase.php');
 
-	$searchString = 'a';
-
-	echo "Cocktail Search Began".PHP_EOL;
-
-	// Create Connection
+	//Create Connection
 	$connection = connDB();
-		
-	$searchString = "%".$searchString."%";
 
-	//Query Prepared Statement
-	$query = $connection->prepare('SELECT * FROM Cocktail WHERE cocktailName LIKE ?');
-	//Binds Username and Password Into Query Statement
-	$query->bind_param("s", $searchString);	
+	$request = array();
+	$request['type']='createRecipe';
+	$request['cocktailName']='Mimosa';
+	$request['username']='test';
+	$request['instructions']='Ensure both ingredients are well chilled, then mix into glass. Serve cold.';
+	$request['imageRef']='https://www.thecocktaildb.com/images/media/drink/juhcuu1504370685.jpg';
+	$request['ingredient1']='Champagne';
+	$request['measurement1']='Chilled';
+	$request['ingredient2']='Orange Juice';
+	$request['measurement2']='2 oz';
 
-	//Execute Query
-	$query->execute();
-	$result = $query->get_result();
 
-	$counter = 1;
-    $response = array();
-    $response['numResults'] = $result->num_rows;
-	while ($row = $result->fetch_row()){
-		$resultData = (array)$row;
+		//Get New Cocktail ID (1 higher than the highest valued cocktail id);
+		$result = mysqli_query($connection, 'SELECT MAX(cocktailID) FROM Cocktail');
+		$result = mysqli_fetch_array($result);
+		$cocktailID = $result[0]+1;
 
-		$response['cocktailID'.(string)$counter] = $resultData[0];
-		$response['cocktailName'.(string)$counter] = $resultData[1];
-		$response['publisher'.(string)$counter] = $resultData[2];
-		$response['instructions'.(string)$counter] = $resultData[3];
-		$response['imageRef'.(string)$counter] = $resultData[4];
-		$counter++;
+		$defaultRating = "0";
+	
+		//Query Prepared Statement
+		$query = $connection->prepare('INSERT INTO Cocktail VALUES (?, ?, ?, ?, ?, ? )');
+		//Binds Username and Password Into Query Statement
+		$query->bind_param("ssssss", $cocktailID, $request['cocktailName'], $request['username'], $request['instructions'], $request['imageRef'], $defaultRating);	
+			
+		//If query executes successfully, return success message
+		if ($query->execute()) {
+			echo "Cocktail Successfully Added Into Cocktail Table \n".PHP_EOL;
+			//logging("Cocktail Successfully Added Into Cocktail Table", __FILE__);
+		}
+		//If the last query failed and gave an error, return an error
+		if ($connection->errno) {
+			echo "Database Error: Failed To Insert Data Into Cocktail Table \n".PHP_EOL;
+			//loggingWarn("Database Error: Failed To Insert Data Into Cocktail Table", __FILE__);
+			//return false;
+		}
+
+	$numIngredients = (count($request)-5)/2;
+
+	for($iter=1; $iter <= $numIngredients; $iter++){
+
+		//Query Prepared Statement
+		$query = $connection->prepare('INSERT INTO Recipe VALUES (?, ?, ?)');
+		//Binds Username and Password Into Query Statement
+		$query->bind_param("sss", $cocktailID, $request['ingredient'.(string)$iter], $request['measurement'.(string)$iter]);	
+			
+		//If query executes successfully, return success message
+		if ($query->execute()) {
+			echo "Recipe Successfully Added Into Recipe Table \n".PHP_EOL;
+			//logging("Recipe Successfully Added Into Recipe Table", __FILE__);
+		}
+		//If the last query failed and gave an error, return an error
+		if ($connection->errno) {
+			echo "Database Error: Failed To Insert Data Into Recipe Table \n".PHP_EOL;
+			//loggingWarn("Database Error: Failed To Insert Data Into Recipe Table", __FILE__);
+			//return false;
+		}
+
 	}
-    
-	echo "Search Finished. Returning ".$response['numResults']." result(s).".PHP_EOL;
-    print_r($response);
-
-//return nothing found
 
 ?>

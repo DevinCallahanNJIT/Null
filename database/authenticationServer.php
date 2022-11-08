@@ -3,10 +3,12 @@ require_once('../lib/path.inc');
 require_once('../lib/get_host_info.inc');
 require_once('../lib/rabbitMQLib.inc');
 require_once('./connectDatabase.php');
+require_once('./logging.php');
 
 function doLogin($username,$password)
 {
 	echo "Authentication Began".PHP_EOL;
+	logging("Authentication Began", __FILE__);
 
 	// Create Connection
 	$connection = connDB();
@@ -26,6 +28,8 @@ function doLogin($username,$password)
 	//If there is more than 0 results, the credentials match.
 	if($numRows != 0){
 		echo "Authentication Success\nCreating Session".PHP_EOL;
+		logging("Authentication Success", __FILE__);
+		logging("Creating Session", __FILE__);
 
 		$datetime = date('Y-m-d H:i:s', time() + 86400);	//current date and time (example format: '2022-20-2022 18:46:26')
 		$sessionID = hash('sha256', $username . $datetime); //session hash based on username and current time
@@ -38,6 +42,7 @@ function doLogin($username,$password)
 		//Execute Query
 		if ($query->execute()) {
 			echo "Session Successfully Created".PHP_EOL;
+			logging("Session Successfully Created", __FILE__);
 			return array(	
 							"returnCode" => "202", 
 							"message"=>"Login and Session Success: Authentication was successful and Session information has successfully been stored.",
@@ -50,12 +55,14 @@ function doLogin($username,$password)
 		//If the last query failed and gave an error, return an error
 		if ($connection->errno) {
 			echo "Database Error: Failed To Insert Data \n".PHP_EOL;
+			loggingWarn("Database Error: Failed to Insert Data", __FILE__);
 			return array("returnCode" => "404", "message"=>"Database Error: Logged in, failed to store session in db.");
 		}
-
+		logging("User's credentials have been authenticated", __FILE__);
 		return array("returnCode" => "202", "message"=>"Login Success: The user's credentials have been authenticated.");
 	}else{
 		echo "Login Failure \n".PHP_EOL;
+		logging("Login Failure: username and password are incorrect", __FILE__);
 		return array("returnCode" => "401", "message"=>"Login Failure: The username and/or password are incorrect.");	
 	}
 }
@@ -63,6 +70,7 @@ function doLogin($username,$password)
 function doRegistration($username, $password)
 {
 	echo "Registration Began".PHP_EOL;
+	logging("Registration Began", __FILE__);
 
 	// Create Connection
 	$connection = connDB();
@@ -82,6 +90,7 @@ function doRegistration($username, $password)
 	//If username unavailable, failure; else, insert username and password
 	if($numRows != 0){
 		echo "Registration Failure \n".PHP_EOL;
+		loggingWarn("Registration Failure: Username already exists", __FILE__);
 		return array("returnCode" => "401", "message"=>"Registration Failure: This username is already taken.");
 	}else{
 		//Query Insert Data
@@ -92,11 +101,13 @@ function doRegistration($username, $password)
 		//If query executes successfully, return success message
 		if ($query->execute()) {
 			echo "Account Successfully Registered \n".PHP_EOL;
+			logging("Account Successfully Registered", __FILE__);
 			return array("returnCode" => "202", "message"=>"Registration Success: Your account has successfully been processed.");
 		 }
 		 //If the last query failed and gave an error, return an error
 		 if ($connection->errno) {
 			echo "Database Error: Failed To Insert Data \n".PHP_EOL;
+			loggingWarn("Database Error: Failed To Insert Data", __FILE__);
 			return array("returnCode" => "404", "message"=>"Database Error: Failed to insert data into database.");
 		 }
 	}
@@ -105,6 +116,7 @@ function doRegistration($username, $password)
 function doSession($sessionID, $username, $expiration){
 
 	echo "Session Validation Began".PHP_EOL;
+	logging("Session Validation Began", __FILE__);
 
 	// Create Connection
 	$connection = connDB();
@@ -130,13 +142,16 @@ function doSession($sessionID, $username, $expiration){
 		//if expiration time is valid, success, else, failure
 		if (time()<=$timestamp){
 			echo "Session Validation Success\n".PHP_EOL;
+			logging("Session Validation Success", __FILE__);
 			return array("returnCode" => "202", "message"=>"Session Validation Success: The session information is valid.");
 		}else{
 			echo "Session Validation Failure\n".PHP_EOL;
+			loggingWarn("Session Validation Failure: session expired", __FILE__);
 			return array("returnCode" => "401", "message"=>"Session Validation Failure: The session is expired.");
 		}
 	}else{
 		echo "Session Validation Failure\n".PHP_EOL;
+		loggingWarn("Session Validation Failure: The session ID is invalid", __FILE__);
 		return array("returnCode" => "401", "message"=>"Session Validation Failure: The session ID is invalid.");
 	}
 
@@ -144,13 +159,15 @@ function doSession($sessionID, $username, $expiration){
 
 function requestProcessor($request)
 {
-	echo "\nReceived Request".PHP_EOL;
+	echo "\n[Received Request]".PHP_EOL;
+	logging("Received an auth request", __FILE__);
 	
 	//var_dump($request);
 
 	if(!isset($request['type']))
 	{
 		return "ERROR: unsupported message type";
+		loggingWarn("Unsupported message type", __FILE__);
 	}
 	switch ($request['type'])
 	{
@@ -171,8 +188,10 @@ function requestProcessor($request)
 
 $server = new rabbitMQServer("../lib/rabbitMQ.ini","Authentication");
 
-echo "RabbitMQServer BEGIN \n".PHP_EOL;
+echo "Authentication Server BEGIN \n".PHP_EOL;
+logging("Authentication Server BEGIN", __FILE__);
 $server->process_requests('requestProcessor');
-echo "RabbitMQServer END \n".PHP_EOL;
+echo "Authentication Server END \n".PHP_EOL;
+logging("Authentication Server END", __FILE__);
 exit();
 ?>

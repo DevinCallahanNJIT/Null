@@ -21,7 +21,7 @@ CREATE TABLE Blog (
     publishDate DATETIME,
     title VARCHAR (64),
     textBody VARCHAR (8192),
-    CONSTRAINT C_Blog_PK_01 PRIMARY KEY (blogID, publisher),
+    CONSTRAINT C_Blog_PK_01 PRIMARY KEY (blogID),
     CONSTRAINT C_Blog_FK_01 FOREIGN KEY (publisher) REFERENCES User(username)
 );
 
@@ -30,7 +30,8 @@ CREATE TABLE Cocktail(
     cocktailName VARCHAR (64),
     publisher VARCHAR (128),
     instructions VARCHAR (2048),
-    cocktailImage VARCHAR (512),
+    imageRef VARCHAR (512),
+    rating FLOAT (2,1), 
     CONSTRAINT C_Cocktail_PK_01 PRIMARY KEY (cocktailID),
     CONSTRAINT C_Cocktail_FK_01 FOREIGN KEY (publisher) REFERENCES User(username)
 );
@@ -52,32 +53,46 @@ CREATE TABLE RecipeBlog(
 );
 
 CREATE TABLE CocktailReview(
-    cocktailID INT PRIMARY KEY,
-    rating FLOAT (2,1),
+    cocktailID INT,
+    publisher VARCHAR (128),
+    rating INT,
+    publishDate DATETIME,
+    title VARCHAR (64),
     textBody VARCHAR (2048),
-    CONSTRAINT C_CocktailReview_FK_01 FOREIGN KEY (cocktailID) REFERENCES Cocktail(cocktailID)
+    CONSTRAINT C_CocktailReview_PK_01 PRIMARY KEY (cocktailID, publisher),
+    CONSTRAINT C_CocktailReview_FK_01 FOREIGN KEY (cocktailID) REFERENCES Cocktail(cocktailID),
+    CONSTRAINT C_CocktailReview_FK_02 FOREIGN KEY (publisher) REFERENCES User(username)
 );
 
-CREATE TABLE Liquor(
-    liquorID INT NOT NULL AUTO_INCREMENT,
-    liquorName VARCHAR (64),
-    liquorImage VARCHAR (512),
-    CONSTRAINT C_Liquor_PK_01 PRIMARY KEY (liquorID)
+CREATE TABLE Ingredient(
+    ingredientName VARCHAR (64) PRIMARY KEY,
+    CONSTRAINT C_ingredient_U_01 UNIQUE (ingredientName)
 );
 
 CREATE TABLE Recipe(
     cocktailID INT,
-    ingredientID INT,
+    ingredientName VARCHAR (64),
     ingredientMeasurement VARCHAR (64),
-    CONSTRAINT C_Recipe_PK_01 PRIMARY KEY (cocktailID, ingredientID),
+    CONSTRAINT C_Recipe_PK_01 PRIMARY KEY (cocktailID, ingredientName),
     CONSTRAINT C_Recipe_FK_01 FOREIGN KEY (cocktailID) REFERENCES Cocktail(cocktailID),
-    CONSTRAINT C_Recipe_FK_02 FOREIGN KEY (ingredientID) REFERENCES Liquor(liquorID)
+    CONSTRAINT C_Recipe_FK_02 FOREIGN KEY (ingredientName) REFERENCES Ingredient(ingredientName)
 );
 
-CREATE TABLE LiquorCabinet(
+CREATE TABLE IngredientCabinet(
     username VARCHAR (128),
-    liquorID INT,
-    CONSTRAINT C_LiquorCabinet_PK_01 PRIMARY KEY (username, liquorID),
-    CONSTRAINT C_LiquorCabinet_FK_01 FOREIGN KEY (username) REFERENCES User(username),
-    CONSTRAINT C_LiquorCabinet_FK_02 FOREIGN KEY (liquorID) REFERENCES Liquor(liquorID)
+    ingredientName VARCHAR (64),
+    CONSTRAINT C_ingredientCabinet_PK_01 PRIMARY KEY (username, ingredientName),
+    CONSTRAINT C_ingredientCabinet_FK_01 FOREIGN KEY (username) REFERENCES User(username),
+    CONSTRAINT C_ingredientCabinet_FK_02 FOREIGN KEY (ingredientName) REFERENCES Ingredient(ingredientName)
+);
+
+INSERT INTO User VALUES ('TheCocktailDB', '3def6c72ec2b07154029c970539988c8bc59c48daf898d4a696641b6b5c7987f');
+
+CREATE DATABASE Miscellaneous;
+
+USE Miscellaneous;
+
+CREATE TABLE SearchTerms(
+    searchTerm VARCHAR (128) PRIMARY KEY,
+    TTL DATETIME
 );

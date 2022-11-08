@@ -1097,33 +1097,35 @@ function fetchRecommendation($username){
 
 	echo "Recommendation Search Began".PHP_EOL;
 	logging("Recommendation Search Began", __FILE__);
-
 	$response = array();
 	$tempResponse = array();
 
 	$fetchIngredients = fetchIngredientCabinet($username);
 
-		for($counter = 1; $counter < count($fetchIngredients); $counter++){
-			$tempResponse[$fetchIngredients['ingredientName'.(string)$counter]] = searchRecipe($fetchIngredients['ingredientName'.(string)$counter]);
-		}
-		
-		if (count($tempResponse)<=3){
-
-			return $tempResponse;
-
-		}
-
-		$keys = array_rand($tempResponse, 3);
-
-		for($i=0; $i<3; $i++){
-			$response[$keys[$i]] = $tempResponse[$keys[$i]];
-		}
-
-		echo "Recommendation Search Finished".PHP_EOL;
-		logging("Recommendation Search Finished", __FILE__);
-		return $response;
+	for($counter = 1; $counter < count($fetchIngredients); $counter++){
+		$tempResponse[$fetchIngredients['ingredientName'.(string)$counter]] = searchRecipe($fetchIngredients['ingredientName'.(string)$counter]);
+	}
 	
-	return array();
+
+	/*
+	//FEELIN' SEXY, MIGHT SCRAP GARBAGE CODE LATER, IDK
+	$trackedVal = array();
+	for($i=0; $i<3; $i++){
+		$val = rand(0, $counter);
+		$response[$i] = $tempResponse[$val];
+		array_splice($tempResponse, $val, 1);
+	}
+	*/
+	$keys = array_rand($tempResponse, 3);
+
+	for($i=0; $i<3; $i++){
+		$response[$keys[$i]] = $tempResponse[$keys[$i]];
+	}
+
+
+	echo "Recommendation Search Finished".PHP_EOL;
+	logging("Recommendation Search Finished", __FILE__);
+	return $response;
 
 }
 
